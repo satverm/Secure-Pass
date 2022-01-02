@@ -8,40 +8,61 @@
 
 import hashlib as hs
 import sqlite3 as sq
-from sqlite3.dbapi2 import SQLITE_SELECT, Cursor
+import random as rd
+
 dbfile= 'pw_wallet_1_00.db'
+ran_min, ran_max = 1000, 20000  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
 
 # First, let's define functions for storing the password
 
-def secure_pw(user_name= None, service= None, Password= None, Pass-phrase= None):    # To conver all the functions to have the arguments passed in case requried.
-    pw_hsh_lst = []
+def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):    # Todo convert all the functions to have the arguments passed in case requried.
     if user_name == None:
         user_name= input("Enter the username: ")
-        
-    
-    user_name = input("Enter the username: ")
-    service_name = input("Enter the service name: ")
-    pass_phrase = input("Enter the pass phrase: ")
-    pass_phrase1 = input("Enter the pass phrase again to confirm: ")
-    if pass_phrase == pass_phrase1:
-        print("Write the pass phrase in a paper for future refrence.")
-        ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
-        pass_phrase, pass_phrase1 = '', ''
-    else:
-        print("The pass phrase entered by you don't match")
-    passwd = input("Enter the password to store for the given username adn service: ")
+    if service == None:
+        service = input("Enter the service name: ")
+    if passwd == None:
+        while True:
+            passwd = input("Enter the password to store for the given username adn service: ")
+            pwd_c = input("Enter the password again to confirm: ")
+            if passwd == pwd_c:
+                break
+            else:
+                print("The password do not match !! Try again..")
+    if pass_phrase == None:
+        while True:
+            pass_phrase = input("Enter the pass phrase: ")
+            print("Write the pass phrase in a paper for future refrence.")
+            pass_phrase1 = input("Enter the pass phrase again to confirm: ")
+            if pass_phrase == pass_phrase1:
+                break
+            else:
+                print("The pass phrase entered by you don't match !! Try again...")
+    if ran_min== None:
+        ran_min = 1000
+    if ran_max == None:
+        ran_max = 10000
+    ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
+    pw_hsh_lst = []
     n_count =0
     for char in passwd:
         n_count +=1
-        temp_str = char + chr(n_count) + str(ps_phr_hsh)
+        ran_num= rd.randint(ran_min, ran_max)   # Add a random number string in the hash to randomize the hashes
+        temp_str = str(ran_num) + char + chr(n_count) + str(ps_phr_hsh)
         pw_ch_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(pw_ch_hsh)
-    pw_record = [user_name,service_name, str(pw_hsh_lst)]
+    # Code to add random hashes, this can be converted into a function and be called as per requirement, this will enable the flexibility in the code
+    ran_int = rd.randint(5,10)
+    for i in range(ran_int):
+        temp_str1 = str(rd.randbytes(10))
+        ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
+        pw_hsh_lst.append(ran_hsh)
+        
+    pw_record = [user_name,service, str(pw_hsh_lst)]
     print(pw_record)
     return(pw_record)
 
 def ret_pw():
-    print("The program will retrieve the password by using the pass phrase")
+    print("The program will  retrieve the password by using the pass phrase")
     sel_id = str(input("To see the userid and service name press Y/y:"))
     
     
@@ -94,7 +115,7 @@ def get_all_record():
 
 #print("Enter the details for storing a password")
 
-#secure_pw()
+secure_pw()
 #store_record()
 ##get_all_record()
 print("The program is used to store and retrieve passwords securily")
