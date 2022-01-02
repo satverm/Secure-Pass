@@ -14,10 +14,11 @@ dbfile= 'pw_wallet_1_00.db'
 # First, let's define functions for storing the password
 
 def secure_pw(user_name= None, service= None, Password= None, Pass-phrase= None):    # To conver all the functions to have the arguments passed in case requried.
+    pw_hsh_lst = []
     if user_name == None:
         user_name= input("Enter the username: ")
-      
-    pw_hsh_lst = []
+        
+    
     user_name = input("Enter the username: ")
     service_name = input("Enter the service name: ")
     pass_phrase = input("Enter the pass phrase: ")
