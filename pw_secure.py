@@ -11,8 +11,8 @@ import sqlite3 as sq
 import random as rd
 
 dbfile= 'pw_wallet_1_00.db'
-ran_min, ran_max = 10, 20  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
-
+lim_min, lim_max = 1, 5  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
+fake_hash_limit = 5
 # First, let's define functions for storing the password
 
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):    # Todo convert all the functions to have the arguments passed in case requried.
@@ -38,20 +38,22 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
             else:
                 print("The pass phrase entered by you don't match !! Try again...")
     if ran_min== None:
-        ran_min = 1000
+        ran_min = lim_min
     if ran_max == None:
-        ran_max = 10000
+        ran_max = lim_max
     ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
     pw_hsh_lst = []
     n_count =0
     for char in passwd:
         n_count +=1
         ran_num= rd.randint(ran_min, ran_max)   # Add a random number string in the hash to randomize the hashes
+
         temp_str = str(ran_num) + char + chr(n_count) + str(ps_phr_hsh)
+        print(temp_str)
         pw_ch_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(pw_ch_hsh)
     # Code to add random hashes, this can be converted into a function and be called as per requirement, this will enable the flexibility in the code
-    ran_int = rd.randint(0,2)
+    ran_int = rd.randint(1,fake_hash_limit)
     for i in range(ran_int):
         temp_str1 = str(rd.randbytes(10))
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
@@ -60,42 +62,56 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
     print(pw_record)
     return(pw_record)
 
-def ret_pw(sel_id = None, pass_phrase= None):
+def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
 
     print("The program will  retrieve the password by using the pass phrase")
     if sel_id == None:
         sel_id = str(input("To see the userid and service name press Y/y:"))
+        if sel_id.lower() == 'y':
+            print(get_all_records())
+        sel_id = input("Enter the id  to retrieve the password: ")
+        
     # Now get the record from the database for the selected id and retrieve password using the passphrase
     rec_list = sel_rec(sel_id)
     pw_hash_list = rec_list[3]
-    
-    
-    pass_phrase = input("Enter the pass phrase: ")
-    pass_phrase1 = input("Enter the pass phrase again to confirm: ")
-    if pass_phrase == pass_phrase1:
-        print("Write the pass phrase in a paper for future refrence.")
-        ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
-        pass_phrase, pass_phrase1 = '', ''
-    else:
-        print("The pass phrase entered by you don't match")
-    #passwd = input("Enter the password to store for the given username adn service: ")
+    if pass_phrase == None:
+        pass_phrase = input("Enter the pass phrase: ")
+    ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
+    if ran_min == None:
+        ran_min = lim_min
+    if ran_max == None:
+        ran_max = lim_max
     n_count =0
-    for i in range(128): #Later change to listofhash items only
+    pword = ''
+    for item in pw_hash_list:
+        tmp_chk = False
         n_count +=1
-        for j in range(128):
-            temp_str = chr(i) + chr(n_count) + str(ps_phr_hsh)
-            pw_ch_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
-            if pw_ch_hsh == target_hash:
-                pword += chr(i)
-    pw_record = [user_name,service_name, str(pw_hsh_lst)]
+        for i in range(128): #Later change to listofhash items only
+            tmp_chk = False
+            for j in range(ran_min,ran_max+1):
+                temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
+                chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
+                #print("{} {} {} {}".format(str(j),chr(i), chr(n_count),str(ps_phr_hsh)))
+                #print(item[1:-1],'\n', chk_hsh)
+                if item[1:-1] == chk_hsh:
+                    pword += chr(i)
+                    print("character{} is {}".format(n_count,chr(i)))
+                    tmp_chk = True
+                    break
+            if tmp_chk == True:
+                break
+            if i == 127:
+                if tmp_chk == False:
+                    if pword != '':
+                        print("The password is: {}".format(pword))
+                    else:
+                        print("The passphrase is not correct !!!")
+                        break
+    pw_record = pword 
     print(pw_record)
     return(pw_record)
 
-# Now let's have a function to retrieve the password\s
-def ret_pw():
-    get_record = secure_pw()
-
-    pass
+ 
 
 # Function for storing the data in a file
 def store_record(record = None):
@@ -122,7 +138,7 @@ def sel_rec(sel_id = None):
     rec_list= [record[0],record[1], record[2],hash_list]
     return(rec_list)
 
-def get_all_record():
+def get_all_records():
     con = sq.connect(dbfile)
     cur = con.cursor()
     cur.execute('SELECT * FROM pwTAB')
