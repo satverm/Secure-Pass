@@ -2,7 +2,7 @@
 # The logic is to hash the pass-phrase and then generate the hashes for each character of the password using the pass-phrase hash.
 # Various methods would be uesd to ensure that the stored hashes are all unique even if the password and the passphrase for any two userid/service are same.
 # Random values are used not for security but to make the hashes look random and make if difficult to find the number of characters in hte password.
-# T0 retrieve the password, the pass-phrase is entered by the user and the characters of the password are recovered back by gemerating the 
+# To retrieve the password, the pass-phrase is entered by the user and the characters of the password are recovered back by gemerating the 
 # hashes and comparing with the stored hashes.
 # Sqlite3 database can be used to store the data in a file for persistance and use by other functions. 
 
@@ -11,8 +11,10 @@ import sqlite3 as sq
 import random as rd
 
 dbfile= 'pw_wallet_1_00.db'
-lim_min, lim_max = 1, 5  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
-fake_hash_limit = 5
+lim_min, lim_max = 100000,200000   # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod and also
+# to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrase without which even with
+# the data of hashes there is no way to find the passwords.
+fake_hash_limit = 10    #Adds fake hashes in the database.
 # First, let's define functions for storing the password
 
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):    # Todo convert all the functions to have the arguments passed in case requried.
@@ -70,7 +72,6 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
         if sel_id.lower() == 'y':
             print(get_all_records())
         sel_id = input("Enter the id  to retrieve the password: ")
-        
     # Now get the record from the database for the selected id and retrieve password using the passphrase
     rec_list = sel_rec(sel_id)
     pw_hash_list = rec_list[3]
@@ -100,16 +101,14 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
                     break
             if tmp_chk == True:
                 break
-            if i == 127:
-                if tmp_chk == False:
-                    if pword != '':
-                        print("The password is: {}".format(pword))
-                    else:
-                        print("The passphrase is not correct !!!")
-                        break
-    pw_record = pword 
-    print(pw_record)
-    return(pw_record)
+        if pword =='':
+            print("The pass phrase is incorrect !!")
+            break
+        else:
+            if tmp_chk == False:
+                print("The password is: {}".format(pword))
+                break
+    return(pword)
 
  
 
