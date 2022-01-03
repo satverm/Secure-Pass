@@ -1,4 +1,5 @@
 # Secure-Pass
+The project is for learning and under development and hence should not be used to store passwords in the present form.
 This will include codes related with storing usernames and passwords in a secure way.
 
 # To do

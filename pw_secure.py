@@ -11,7 +11,7 @@ import sqlite3 as sq
 import random as rd
 
 dbfile= 'pw_wallet_1_00.db'
-ran_min, ran_max = 1000, 20000  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
+ran_min, ran_max = 10, 20  # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod adn also to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrse without which even with the data of hashes there is no way to find the passwords.
 
 # First, let's define functions for storing the password
 
@@ -51,19 +51,23 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         pw_ch_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(pw_ch_hsh)
     # Code to add random hashes, this can be converted into a function and be called as per requirement, this will enable the flexibility in the code
-    ran_int = rd.randint(5,10)
+    ran_int = rd.randint(0,2)
     for i in range(ran_int):
         temp_str1 = str(rd.randbytes(10))
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(ran_hsh)
-        
     pw_record = [user_name,service, str(pw_hsh_lst)]
     print(pw_record)
     return(pw_record)
 
-def ret_pw():
+def ret_pw(sel_id = None, pass_phrase= None):
+
     print("The program will  retrieve the password by using the pass phrase")
-    sel_id = str(input("To see the userid and service name press Y/y:"))
+    if sel_id == None:
+        sel_id = str(input("To see the userid and service name press Y/y:"))
+    # Now get the record from the database for the selected id and retrieve password using the passphrase
+    rec_list = sel_rec(sel_id)
+    pw_hash_list = rec_list[3]
     
     
     pass_phrase = input("Enter the pass phrase: ")
@@ -94,16 +98,29 @@ def ret_pw():
     pass
 
 # Function for storing the data in a file
-def store_record():
-    record = secure_pw()
+def store_record(record = None):
+    if record == None:
+        record = secure_pw()
     con = sq.connect(dbfile)
     cur = con.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userId integer auto_increment primary key not null, UserName text, Service text, pwHash text)''')
-    cur.execute('INSERT INTO pwTAB(userid,UserName,Service,pwHash) VALUES(?,?,?,?)',record)
-    cur.execute('SELECT * FROM pwTAB')
-    print(cur.fetchall())
+    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
+    cur.execute('INSERT INTO pwTAB(UserName,Service,pwHash) VALUES(?,?,?)',record)
     con.commit()
     con.close()
+
+def sel_rec(sel_id = None):
+    if sel_id == None:
+        sel_id = input("Enter the id for which password is to be found: ")
+    con = sq.connect(dbfile)
+    cur = con.cursor()
+    cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
+    record = cur.fetchone()
+    con.close()
+    tmp_str = str(record[3])
+    tmp_str1 = tmp_str.strip("[]")
+    hash_list = tmp_str1.split(', ')
+    rec_list= [record[0],record[1], record[2],hash_list]
+    return(rec_list)
 
 def get_all_record():
     con = sq.connect(dbfile)
@@ -115,10 +132,10 @@ def get_all_record():
 
 #print("Enter the details for storing a password")
 
-secure_pw()
+#secure_pw()
 #store_record()
-##get_all_record()
-print("The program is used to store and retrieve passwords securily")
+#get_all_record()
+print("The program is used to store and retrieve passwords securely")
 
 
 
