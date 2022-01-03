@@ -10,14 +10,14 @@ import hashlib as hs
 import sqlite3 as sq
 import random as rd
 
-dbfile= 'pw_wallet_1_00.db'
+dbfile= 'pw_wallet_1_00.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 100000,200000   # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
-fake_hash_limit = 10    #Adds fake hashes in the database.
-# First, let's define functions for storing the password
+fake_hash_limit = 10    # Adds fake hashes in the database.
 
-def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):    # Todo convert all the functions to have the arguments passed in case requried.
+# First, let's define functions for storing the password
+def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):
     if user_name == None:
         user_name= input("Enter the username: ")
     if service == None:
@@ -32,7 +32,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
                 print("The password do not match !! Try again..")
     if pass_phrase == None:
         while True:
-            pass_phrase = input("Enter the pass phrase: ")
+            pass_phrase = input("Enter the passphrase: ")
             print("Write the pass phrase in a paper for future refrence.")
             pass_phrase1 = input("Enter the pass phrase again to confirm: ")
             if pass_phrase == pass_phrase1:
@@ -49,9 +49,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
     for char in passwd:
         n_count +=1
         ran_num= rd.randint(ran_min, ran_max)   # Add a random number string in the hash to randomize the hashes
-
         temp_str = str(ran_num) + char + chr(n_count) + str(ps_phr_hsh)
-        print(temp_str)
         pw_ch_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(pw_ch_hsh)
     # Code to add random hashes, this can be converted into a function and be called as per requirement, this will enable the flexibility in the code
@@ -61,12 +59,10 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
-    print(pw_record)
     return(pw_record)
 
 def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
-
-    print("The program will  retrieve the password by using the pass phrase")
+    print("The program will  retrieve the password by using the passphrase\n")
     if sel_id == None:
         sel_id = str(input("To see the userid and service name press Y/y:"))
         if sel_id.lower() == 'y':
@@ -87,13 +83,11 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
     for item in pw_hash_list:
         tmp_chk = False
         n_count +=1
-        for i in range(128): #Later change to listofhash items only
+        for i in range(128): 
             tmp_chk = False
             for j in range(ran_min,ran_max+1):
                 temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
                 chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
-                #print("{} {} {} {}".format(str(j),chr(i), chr(n_count),str(ps_phr_hsh)))
-                #print(item[1:-1],'\n', chk_hsh)
                 if item[1:-1] == chk_hsh:
                     pword += chr(i)
                     print("character{} is {}".format(n_count,chr(i)))
