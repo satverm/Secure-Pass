@@ -14,7 +14,9 @@ dbfile= 'pw_wallet_1_00.db'  # The file name can be changed by the user here onl
 lim_min, lim_max = 100000,200000   # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
-fake_hash_limit = 10    # Adds fake hashes in the database.
+## These limits can also be used as a smart feature to store the passwords using some big value but a small range of say 1000 and use the 
+## same during retrieving process. So this can act as additional way of increasing diffuculty for others to retrieve the passwords.
+fake_hash_limit = 10    # Adds random number of fake hashes in the database.
 
 # First, let's define functions for storing the password
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -59,6 +61,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
+    store_record(pw_record)
     return(pw_record)
 
 def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -116,6 +119,7 @@ def store_record(record = None):
     cur.execute('INSERT INTO pwTAB(UserName,Service,pwHash) VALUES(?,?,?)',record)
     con.commit()
     con.close()
+    print("Password Wallwt updated")
 
 def sel_rec(sel_id = None):
     if sel_id == None:
