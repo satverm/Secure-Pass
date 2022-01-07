@@ -11,7 +11,7 @@ import sqlite3 as sq
 import random as rd
 
 dbfile= 'pw_wallet_1_00.db'  # The file name can be changed by the user here only to have different names.
-lim_min, lim_max = 100000,200000   # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod and also
+lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max cab be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different for same password and passphrase. The security is related only to the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
 ## These limits can also be used as a smart feature to store the passwords using some big value but a small range of say 1000 and use the 
@@ -62,6 +62,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
     store_record(pw_record)
+    print("The password has been secured and stored in database")
     return(pw_record)
 
 def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -119,7 +120,7 @@ def store_record(record = None):
     cur.execute('INSERT INTO pwTAB(UserName,Service,pwHash) VALUES(?,?,?)',record)
     con.commit()
     con.close()
-    print("Password Wallwt updated")
+    print("Password Wallet updated")
 
 def sel_rec(sel_id = None):
     if sel_id == None:
@@ -147,6 +148,7 @@ def get_all_records():
 
 #secure_pw()
 #store_record()
+#ret_pw()
 #get_all_record()
 print("The program is used to store and retrieve passwords securely")
 
