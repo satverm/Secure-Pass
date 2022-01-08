@@ -17,6 +17,7 @@ lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can 
 ## These limits can also be used as a smart feature to store the passwords using some big value but a small range of say 1000 and use the 
 ## same during retrieving process. So this can act as additional way of increasing diffuculty for others to retrieve the passwords.
 fake_hash_limit = 10    # Adds random (1-10)number of fake hashes in the database.
+print("The program is used to store and retrieve passwords securely\n")
 
 # First, let's define functions for storing the password
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -62,7 +63,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
     store_record(pw_record)
-    print("The password has been secured and stored in database")
+    print("The password has been secured and stored in database\n")
     return(pw_record)
 
 def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -104,7 +105,8 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
             break
         else:
             if tmp_chk == False:
-                print("The password is: {}".format(pword))
+                print("\nThe password is: {}".format(pword))
+
                 break
     return(pword)
 
@@ -143,11 +145,39 @@ def get_all_records():
     record = cur.fetchall()
     con.close()
     return(record)
+
+
+def pw_ui():
+    print("The program is used for storing and retrieving your password\n")
+    task_list = {"0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"}
+    while True:
+        print("\nFollowing tasks can be performed:-")
+        for item in task_list:
+            print(item)
+        sel_task = str(input("\nEnter the number for the Selected Task: "))
+        
+        if sel_task == '1':
+            secure_pw()
+        if sel_task == '2':
+            pass
+        if sel_task == '3':
+            pass
+        if sel_task == '4':
+            ret_pw()
+        if sel_task == '5':
+            get_all_records()
+        if sel_task == '0':
+            print("The program completed!!")
+            break
+
+
+
+print("Let's run the UI code..\n")
+pw_ui()
 #secure_pw()
 #store_record()
 #ret_pw()
 #get_all_record()
-print("The program is used to store and retrieve passwords securely")
 
 
 
