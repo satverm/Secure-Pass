@@ -17,7 +17,7 @@ lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can 
 ## These limits can also be used as a smart feature to store the passwords using some big value but a small range of say 1000 and use the 
 ## same during retrieving process. So this can act as additional way of increasing diffuculty for others to retrieve the passwords.
 fake_hash_limit = 10    # Adds random (1-10)number of fake hashes in the database.
-print("The program is used to store and retrieve passwords securely\n")
+#print("The program is used to store and retrieve passwords securely\n")
 
 # First, let's define functions for storing the password
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):
@@ -71,7 +71,7 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
     if sel_id == None:
         sel_id = str(input("To see the userid and service name press Y/y:"))
         if sel_id.lower() == 'y':
-            print(get_all_records())
+            get_all_records()
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
     rec_list = sel_rec(sel_id)
@@ -143,13 +143,16 @@ def get_all_records():
     cur = con.cursor()
     cur.execute('SELECT * FROM pwTAB')
     record = cur.fetchall()
+    for item in record:
+        print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
 
 
 def pw_ui():
-    print("The program is used for storing and retrieving your password\n")
-    task_list = {"0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"}
+    print("The program is used for storing and retrieving your password")
+    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
+    print(task_list)
     while True:
         print("\nFollowing tasks can be performed:-")
         for item in task_list:
@@ -172,7 +175,7 @@ def pw_ui():
 
 
 
-print("Let's run the UI code..\n")
+#print("Let's run the UI code..\n")
 pw_ui()
 #secure_pw()
 #store_record()
