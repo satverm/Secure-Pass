@@ -62,7 +62,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
-    store_record(pw_record)
+    #store_record(pw_record)
     print("The password has been secured and stored in database\n")
     return(pw_record)
 
@@ -110,8 +110,6 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
                 break
     return(pword)
 
- 
-
 # Function for storing the data in a file
 def store_record(record = None):
     if record == None:
@@ -124,9 +122,52 @@ def store_record(record = None):
     con.close()
     print("Password Wallet updated")
 
+def del_rec(sel_id = None):
+    if sel_id == None:
+        print("The records stored in the database are: ")
+        sel_rec = get_all_records()
+        sel_id = input("Enter the id for which record is to be deleted: ")
+    else:
+        print("The selected record is as under: ")
+        sel_rec = get_all_records(sel_id)
+    con = sq.connect(dbfile)
+    cur = con.cursor()
+    cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
+    con_del = input("Press Y/y to  confirm deleting the selected record: ")
+    if con_del.lower() == 'y':
+        con.commit()
+        print("The selected id {} has been deleted!!".format(sel_id))
+    else:
+        print("The selected record has not been deleted.")
+    con.close()
+
+def update_rec(sel_id = None):
+    if sel_id == None:
+        print("The records stored in the database are: ")
+        get_all_records()
+        sel_id = input("Enter the id for which password is to be updated: ")
+    else:
+        print("The selected record is as under: ")
+        get_all_records(sel_id)
+    rec_to_updt = sel_rec(sel_id)
+
+    updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
+    con = sq.connect(dbfile)
+    cur = con.cursor()
+    cur.execute('UPDATE pwTAB  SET pwHASH = (?) WHERE userID = (?)',(updated_rec[2],sel_id,))
+    con_updt = input("Press Y/y to  confirm updating the selected record: ")
+    if con_updt.lower() == 'y':
+        con.commit()
+        print("The selected id {} has been updated!!".format(sel_id))
+    else:
+        print("The selected record has not been updated.")
+    con.close()
+
+
+
 def sel_rec(sel_id = None):
     if sel_id == None:
-        sel_id = input("Enter the id for which password is to be found: ")
+        sel_id = input("Enter the id  to select the record: ")
     con = sq.connect(dbfile)
     cur = con.cursor()
     cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
@@ -138,7 +179,7 @@ def sel_rec(sel_id = None):
     rec_list= [record[0],record[1], record[2],hash_list]
     return(rec_list)
 
-def get_all_records():
+def get_all_records(sel_id= None):
     con = sq.connect(dbfile)
     cur = con.cursor()
     cur.execute('SELECT * FROM pwTAB')
@@ -160,11 +201,11 @@ def pw_ui():
         sel_task = str(input("\nEnter the number for the Selected Task: "))
         
         if sel_task == '1':
-            secure_pw()
+            store_record()
         if sel_task == '2':
-            pass
+            update_rec()
         if sel_task == '3':
-            pass
+            del_rec()
         if sel_task == '4':
             ret_pw()
         if sel_task == '5':
