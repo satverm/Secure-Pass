@@ -12,7 +12,7 @@ import random as rd
 from traceback import print_tb
 from typing import Tuple
 
-dbfile= 'pw_wallet_1_02.db'  # The file name can be changed by the user here only to have different names.
+dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different even for same password and passphrase pairs. The security is provided by the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
