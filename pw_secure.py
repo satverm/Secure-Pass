@@ -9,8 +9,10 @@
 import hashlib as hs
 import sqlite3 as sq
 import random as rd
+from traceback import print_tb
+from typing import Tuple
 
-dbfile= 'pw_wallet_1_00.db'  # The file name can be changed by the user here only to have different names.
+dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different even for same password and passphrase pairs. The security is provided by the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
@@ -163,8 +165,6 @@ def update_rec(sel_id = None):
         print("The selected record has not been updated.")
     con.close()
 
-
-
 def sel_rec(sel_id = None):
     if sel_id == None:
         sel_id = input("Enter the id  to select the record: ")
@@ -189,21 +189,35 @@ def get_all_records(sel_id= None):
     con.close()
     return(record)
 
-
 def pw_ui():
-    con = sq.connect(dbfile)  # will create a database file if not present
-    con.close()
     print("The program is used for storing and retrieving your password")
+    con = sq.connect(dbfile)  # will create a database file if not present
+    cur = con.cursor()
+    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
+    cur.execute("SELECT * FROM pwTAB")
+    #print(cur.rowcount)
+    if cur.rowcount == -1:
+        no_data = True
+        print("There is no data stored at present in the database!!")
+    con.commit()
+    con.close()
     task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
-    print(task_list)
+    #print(task_list)
     while True:
         print("\nFollowing tasks can be performed:-")
         for item in task_list:
             print(item)
-        sel_task = str(input("\nEnter the number for the Selected Task: "))
+        if no_data:
+            # Give option to exit (todo)
+            print("Enter the details for storing password.")
+            sel_y = input("Enter Y/y to continue: ")
+            sel_task = '1'
+        else:
+            sel_task = str(input("\nEnter the number for the Selected Task: "))
         
         if sel_task == '1':
             store_record()
+            no_data = False
         if sel_task == '2':
             update_rec()
         if sel_task == '3':
