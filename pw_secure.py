@@ -191,6 +191,8 @@ def get_all_records(sel_id= None):
 
 
 def pw_ui():
+    con = sq.connect(dbfile)  # will create a database file if not present
+    con.close()
     print("The program is used for storing and retrieving your password")
     task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
     print(task_list)
