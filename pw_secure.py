@@ -157,7 +157,7 @@ def update_rec(sel_id = None):
         print("The selected record is as under: ")
         get_all_records(sel_id)
     if get_all_records(sel_id) ==[]:
-        print("The entered ID is not present")
+        print("The entered ID is not present!!")
     else:
         rec_to_updt = sel_rec(sel_id)
         updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
