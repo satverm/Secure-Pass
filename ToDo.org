@@ -1,10 +1,10 @@
 #InfoBrw:This Document contains the To Do List for the project Secure-Pass 
 * To Do List for the Secure-Pass project
 
-** ToDo
+* ToDo
 * TODO Improve Readme.md
 * TODO Add code to check data validity for inputs by the user.
-* TODO Create a user ID and password as the first row in the database which can be used to do the tasks for a new user.
+* TODO Create a user for the program. The ID and password in the first row in the database  can be used to login a user for managing the database. This will be used in UI to  create a login manager. This will become the opening dialog box for gui.
  
 Basic Functions:
 
