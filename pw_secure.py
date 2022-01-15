@@ -6,6 +6,7 @@
 # hashes and comparing with the stored hashes.
 # Sqlite3 database can be used to store the data in a file for persistance and use by other functions. 
 
+from ast import ExtSlice
 import hashlib as hs
 import sqlite3 as sq
 import random as rd
@@ -127,21 +128,25 @@ def store_record(record = None):
 def del_rec(sel_id = None):
     if sel_id == None:
         print("The records stored in the database are: ")
-        sel_rec = get_all_records()
-        sel_id = input("Enter the id for which record is to be deleted: ")
+        get_all_records()
+        sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
-        print("The selected record is as under: ")
-        sel_rec = get_all_records(sel_id)
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
-    con_del = input("Press Y/y to  confirm deleting the selected record: ")
-    if con_del.lower() == 'y':
-        con.commit()
-        print("The selected id {} has been deleted!!".format(sel_id))
+        get_all_records(sel_id)
+    sel_rec = get_all_records(sel_id)
+    #print(sel_rec)
+    if sel_rec == []:
+        print("The selected ID is not present !!")
     else:
-        print("The selected record has not been deleted.")
-    con.close()
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
+        con_del = input("Press Y/y to  confirm deleting the selected record: ")
+        if con_del.lower() == 'y':
+            con.commit()
+            print("The selected id {} has been deleted!!".format(sel_id))
+        else:
+            print("The selected record has not been deleted.")
+        con.close()
 
 def update_rec(sel_id = None):
     if sel_id == None:
@@ -177,20 +182,26 @@ def sel_rec(sel_id = None):
     tmp_str1 = tmp_str.strip("[]")
     hash_list = tmp_str1.split(', ')
     rec_list= [record[0],record[1], record[2],hash_list]
+    print(rec_list)
     return(rec_list)
 
 def get_all_records(sel_id= None):
     con = sq.connect(dbfile)
     cur = con.cursor()
-    cur.execute('SELECT * FROM pwTAB')
-    record = cur.fetchall()
+    if sel_id != None:
+        #sel_id = input("Enter the id  to select the record: ")
+        cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
+        record = cur.fetchall()
+    else:
+        cur.execute('SELECT * FROM pwTAB')
+        record = cur.fetchall()
     for item in record:
         print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
 
 def pw_ui():
-    print("The program is used for storing and retrieving your password\n")
+    print("\n***The program is used for storing and retrieving your password***")
     con = sq.connect(dbfile)  # will create a database file if not present
     cur = con.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
@@ -204,7 +215,7 @@ def pw_ui():
         no_data = False
     con.commit()
     con.close()
-    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
+    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
     #print(task_list)
     while True:
         print("\nFollowing tasks can be performed:-")
@@ -244,11 +255,13 @@ def pw_ui():
 
 
 #print("Let's run the UI code..\n")
+#print(len(get_all_records()))
 pw_ui()
 #secure_pw()
 #store_record()
 #ret_pw()
-#get_all_record()
+#sel_rec()
+#get_all_records(1)
 
 
 
