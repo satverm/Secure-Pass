@@ -6,12 +6,9 @@
 # hashes and comparing with the stored hashes.
 # Sqlite3 database can be used to store the data in a file for persistance and use by other functions. 
 
-from ast import ExtSlice
 import hashlib as hs
 import sqlite3 as sq
 import random as rd
-from traceback import print_tb
-from typing import Tuple
 
 dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can be made large to increase the time for retrieving the passworod and also
