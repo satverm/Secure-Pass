@@ -190,15 +190,18 @@ def get_all_records(sel_id= None):
     return(record)
 
 def pw_ui():
-    print("The program is used for storing and retrieving your password")
+    print("The program is used for storing and retrieving your password\n")
     con = sq.connect(dbfile)  # will create a database file if not present
     cur = con.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
     cur.execute("SELECT * FROM pwTAB")
-    #print(cur.rowcount)
-    if cur.rowcount == -1:
+    data_chk = cur.fetchone()
+    if data_chk == None:
         no_data = True
         print("There is no data stored at present in the database!!")
+        print("A new database file: {} has been created !!".format(dbfile))
+    else:
+        no_data = False
     con.commit()
     con.close()
     task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
@@ -207,27 +210,35 @@ def pw_ui():
         print("\nFollowing tasks can be performed:-")
         for item in task_list:
             print(item)
-        if no_data:
+        if no_data == True:
             # Give option to exit (todo)
-            print("Enter the details for storing password.")
-            sel_y = input("Enter Y/y to continue: ")
-            sel_task = '1'
+            print("Enter the details for storing a new record for securing password.")
+            sel_y = input("Enter Y/y to continue or Enter/Return/any key to abort: ")
+            if sel_y.lower() == 'y':
+                sel_task = '1'
+                print("A new record will be created !!")
+            else:
+                print("Program finished ..")
+                break
         else:
             sel_task = str(input("\nEnter the number for the Selected Task: "))
         
         if sel_task == '1':
             store_record()
             no_data = False
-        if sel_task == '2':
+        elif sel_task == '2':
             update_rec()
-        if sel_task == '3':
+        elif sel_task == '3':
             del_rec()
-        if sel_task == '4':
+        elif sel_task == '4':
             ret_pw()
-        if sel_task == '5':
+        elif sel_task == '5':
             get_all_records()
-        if sel_task == '0':
+        elif sel_task == '0':
             print("The program completed!!")
+            break
+        else:
+            print("No valid input recieved, Exiting the program!!")
             break
 
 
