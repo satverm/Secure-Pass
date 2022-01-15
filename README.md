@@ -5,7 +5,7 @@ This will include codes related with storing usernames and passwords in a secure
 
 ## Updates: 
 Full terminal/Text based UI completed.
-## Smart Secure: Secure the password by making the lim_min and lim_max variable very large and a difference of atleat 10,000 between them (for example 800000 and 810000) and then revert the code to the default value of 1000 and 2000.
+## Smart Secure: Secure the password by making the lim_min and lim_max variable very large and a difference of atleast 10,000 between them (for example 800000 and 810000) and then revert the code to the default value of 1000 and 2000.
 ## To do
 Add the code for the passwords and the passphrase to be meeting some parameters such as having atleast one integer, special characters, minimum length etc..
 
@@ -22,6 +22,8 @@ Option to define pairs of passphrases (more than two people storing different pa
 Using the concept of block chain to store the data in such a way that the data of individuals is stored using the hashing power of the network
 
 Encrypting the database file itself.
+
+Move Todo list out of Readme.md to todo.org
 
 
 
