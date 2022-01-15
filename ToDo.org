@@ -1,4 +1,25 @@
 #InfoBrw:This Document contains the To Do List for the project Secure-Pass 
-* ToDo List for the Secure-Pass project
-Basic Functions:
+* To Do List for the Secure-Pass project
+
+** ToDo
+TODO Add code to check data validity for inputs by the user.
+TODO Create a user ID and password as the first row in the database which can be used to do the tasks for a new user.
  
+Basic Functions:
+
+ 1. Add the code for the passwords and the passphrase to be meeting some parameters such as having atleast one integer, special characters, minimum length etc..
+ 2. Make some form of documentation so that it follows the systems engineering model, this means to add documents such as requirements,specifications..
+ 3. Options to store multiple users, service and password pairs using arrays, database etc.
+ 4. Having a user interface to interact with the code and store and retrieve passwords.
+ 5. Having the option to define administrators, users etc with various privileges for storing and retrieving the passwords
+ 6. Option to define pairs of passphrases (more than two people storing different passphrase for the same data and make the password be retrievable only with all the persons entering their passphrase) This can work like a merkle tree and a single merle root hash can be used in the code and finally just one hash to store the password or some data or key for later retrievel and use. This can become a fork where the merkle root of passphrases or keys is stored as hash and used for authentication by two or more persons rater than retrieving the password. In that case the functions may be completely modified.
+ 7. Using the concept of block chain to store the data in such a way that the data of individuals is stored using the hashing power of the network
+ 8. Encrypting the database file itself.
+ 9. Make the path for database file to be stored as per users choice.
+Future Functions:
+ 1. Make the database scattered in a network such that the hashes are split and  stored in more than one system or node and hence 
+ 2. Make a gui for the tasks.
+ 3. 
+Forks:
+ 1. Make a program which can be utilised by more than one person for collective authentication. The passphrase/password for every user is hashed and then a merkle root is found and stored in the server.
+
