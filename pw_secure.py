@@ -69,8 +69,8 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
 def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
     print("The program will  retrieve the password by using the passphrase\n")
     if sel_id == None:
-        sel_id = str(input("To see the userid and service name press Y/y:"))
-        if sel_id.lower() == 'y':
+        sel_y = str(input("To see the userid and service name press Y/y:"))
+        if sel_y.lower() == 'y':
             get_all_records()
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
@@ -248,7 +248,7 @@ def pw_ui():
         elif sel_task == '3':
             del_rec()
         elif sel_task == '4':
-            ret_pw()
+            ret_pw() #todo: avoid double printing of selected record
         elif sel_task == '5':
             get_all_records()
         elif sel_task == '0':
@@ -257,12 +257,16 @@ def pw_ui():
         else:
             print("No valid input recieved, Exiting the program!!")
             break
+def main():
+    pw_ui()
 
+if __name__ == "__main__":
+        main()
 
 
 #print("Let's run the UI code..\n")
 #print(len(get_all_records()))
-pw_ui()
+#pw_ui()
 #secure_pw()
 #store_record()
 #ret_pw()
