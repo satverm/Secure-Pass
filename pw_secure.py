@@ -77,41 +77,44 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
             get_all_records()
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
-    rec_list = sel_rec(sel_id)
-    pw_hash_list = rec_list[3]
-    if pass_phrase == None:
-        pass_phrase = input("Enter the pass phrase: ")
-    ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
-    if ran_min == None:
-        ran_min = lim_min
-    if ran_max == None:
-        ran_max = lim_max
-    n_count =0
-    pword = ''
-    for item in pw_hash_list:
-        tmp_chk = False
-        n_count +=1
-        for i in range(128): 
+    if get_all_records(sel_id) == []:
+        print("The selected ID is not present!!")
+    else:
+        rec_list = sel_rec(sel_id)
+        pw_hash_list = rec_list[3]
+        if pass_phrase == None:
+            pass_phrase = input("Enter the pass phrase: ")
+        ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
+        if ran_min == None:
+            ran_min = lim_min
+        if ran_max == None:
+            ran_max = lim_max
+        n_count =0
+        pword = ''
+        for item in pw_hash_list:
             tmp_chk = False
-            for j in range(ran_min,ran_max+1):
-                temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
-                chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
-                if item[1:-1] == chk_hsh:
-                    pword += chr(i)
-                    print("character{} is {}".format(n_count,chr(i)))
-                    tmp_chk = True
+            n_count +=1
+            for i in range(128): 
+                tmp_chk = False
+                for j in range(ran_min,ran_max+1):
+                    temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
+                    chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
+                    if item[1:-1] == chk_hsh:
+                        pword += chr(i)
+                        print("character{} is {}".format(n_count,chr(i)))
+                        tmp_chk = True
+                        break
+                if tmp_chk == True:
                     break
-            if tmp_chk == True:
+            if pword =='':
+                print("The pass phrase is incorrect !!")
                 break
-        if pword =='':
-            print("The pass phrase is incorrect !!")
-            break
-        else:
-            if tmp_chk == False:
-                print("\nThe password is: {}".format(pword))
+            else:
+                if tmp_chk == False:
+                    print("\nThe password is: {}".format(pword))
 
-                break
-    return(pword)
+                    break
+        return(pword)
 
 # Function for storing the data in a file
 def store_record(record = None):
@@ -156,33 +159,39 @@ def update_rec(sel_id = None):
     else:
         print("The selected record is as under: ")
         get_all_records(sel_id)
-    rec_to_updt = sel_rec(sel_id)
-
-    updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('UPDATE pwTAB  SET pwHASH = (?) WHERE userID = (?)',(updated_rec[2],sel_id,))
-    con_updt = input("Press Y/y to  confirm updating the selected record: ")
-    if con_updt.lower() == 'y':
-        con.commit()
-        print("The selected id {} has been updated!!".format(sel_id))
+    if get_all_records(sel_id) ==[]:
+        print("The entered ID is not present")
     else:
-        print("The selected record has not been updated.")
-    con.close()
+        rec_to_updt = sel_rec(sel_id)
+        updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('UPDATE pwTAB  SET pwHASH = (?) WHERE userID = (?)',(updated_rec[2],sel_id,))
+        con_updt = input("Press Y/y to  confirm updating the selected record: ")
+        if con_updt.lower() == 'y':
+            con.commit()
+            print("The selected id {} has been updated!!".format(sel_id))
+        else:
+            print("The selected record has not been updated.")
+        con.close()
 
 def sel_rec(sel_id = None):
     if sel_id == None:
         sel_id = input("Enter the id  to select the record: ")
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
-    record = cur.fetchone()
-    con.close()
-    tmp_str = str(record[3])
-    tmp_str1 = tmp_str.strip("[]")
-    hash_list = tmp_str1.split(', ')
-    rec_list= [record[0],record[1], record[2],hash_list]
-    print(rec_list)
+    if get_all_records(sel_id) == []:
+        print("The entered ID is not present!!")
+        rec_list =[]
+    else:
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
+        record = cur.fetchone()
+        con.close()
+        tmp_str = str(record[3])
+        tmp_str1 = tmp_str.strip("[]")
+        hash_list = tmp_str1.split(', ')
+        rec_list= [record[0],record[1], record[2],hash_list]
+        #print(rec_list)
     return(rec_list)
 
 def get_all_records(sel_id= None):
