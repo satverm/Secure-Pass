@@ -1,3 +1,4 @@
 #InfoBrw:This Document contains the To Do List for the project Secure-Pass 
-1. Make a simple user interface (command line based) to use all functions of adding deleting updating and retrieving data.
-2. Make a gui for any user to interact with the program.
+* ToDo List for the Secure-Pass project
+Basic Functions:
+ 
