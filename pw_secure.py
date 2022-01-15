@@ -6,6 +6,7 @@
 # hashes and comparing with the stored hashes.
 # Sqlite3 database can be used to store the data in a file for persistance and use by other functions. 
 
+from ast import ExtSlice
 import hashlib as hs
 import sqlite3 as sq
 import random as rd
@@ -76,41 +77,44 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
             get_all_records()
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
-    rec_list = sel_rec(sel_id)
-    pw_hash_list = rec_list[3]
-    if pass_phrase == None:
-        pass_phrase = input("Enter the pass phrase: ")
-    ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
-    if ran_min == None:
-        ran_min = lim_min
-    if ran_max == None:
-        ran_max = lim_max
-    n_count =0
-    pword = ''
-    for item in pw_hash_list:
-        tmp_chk = False
-        n_count +=1
-        for i in range(128): 
+    if get_all_records(sel_id) == []:
+        print("The selected ID is not present!!")
+    else:
+        rec_list = sel_rec(sel_id)
+        pw_hash_list = rec_list[3]
+        if pass_phrase == None:
+            pass_phrase = input("Enter the pass phrase: ")
+        ps_phr_hsh = hs.sha256(pass_phrase.encode('utf-8')).hexdigest()
+        if ran_min == None:
+            ran_min = lim_min
+        if ran_max == None:
+            ran_max = lim_max
+        n_count =0
+        pword = ''
+        for item in pw_hash_list:
             tmp_chk = False
-            for j in range(ran_min,ran_max+1):
-                temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
-                chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
-                if item[1:-1] == chk_hsh:
-                    pword += chr(i)
-                    print("character{} is {}".format(n_count,chr(i)))
-                    tmp_chk = True
+            n_count +=1
+            for i in range(128): 
+                tmp_chk = False
+                for j in range(ran_min,ran_max+1):
+                    temp_str = str(j) + chr(i) + chr(n_count) + str(ps_phr_hsh)
+                    chk_hsh = hs.sha256(temp_str.encode('utf-8')).hexdigest()
+                    if item[1:-1] == chk_hsh:
+                        pword += chr(i)
+                        print("character{} is {}".format(n_count,chr(i)))
+                        tmp_chk = True
+                        break
+                if tmp_chk == True:
                     break
-            if tmp_chk == True:
+            if pword =='':
+                print("The pass phrase is incorrect !!")
                 break
-        if pword =='':
-            print("The pass phrase is incorrect !!")
-            break
-        else:
-            if tmp_chk == False:
-                print("\nThe password is: {}".format(pword))
+            else:
+                if tmp_chk == False:
+                    print("\nThe password is: {}".format(pword))
 
-                break
-    return(pword)
+                    break
+        return(pword)
 
 # Function for storing the data in a file
 def store_record(record = None):
@@ -127,21 +131,25 @@ def store_record(record = None):
 def del_rec(sel_id = None):
     if sel_id == None:
         print("The records stored in the database are: ")
-        sel_rec = get_all_records()
-        sel_id = input("Enter the id for which record is to be deleted: ")
+        get_all_records()
+        sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
-        print("The selected record is as under: ")
-        sel_rec = get_all_records(sel_id)
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
-    con_del = input("Press Y/y to  confirm deleting the selected record: ")
-    if con_del.lower() == 'y':
-        con.commit()
-        print("The selected id {} has been deleted!!".format(sel_id))
+        get_all_records(sel_id)
+    sel_rec = get_all_records(sel_id)
+    #print(sel_rec)
+    if sel_rec == []:
+        print("The selected ID is not present !!")
     else:
-        print("The selected record has not been deleted.")
-    con.close()
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
+        con_del = input("Press Y/y to  confirm deleting the selected record: ")
+        if con_del.lower() == 'y':
+            con.commit()
+            print("The selected id {} has been deleted!!".format(sel_id))
+        else:
+            print("The selected record has not been deleted.")
+        con.close()
 
 def update_rec(sel_id = None):
     if sel_id == None:
@@ -151,93 +159,118 @@ def update_rec(sel_id = None):
     else:
         print("The selected record is as under: ")
         get_all_records(sel_id)
-    rec_to_updt = sel_rec(sel_id)
-
-    updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('UPDATE pwTAB  SET pwHASH = (?) WHERE userID = (?)',(updated_rec[2],sel_id,))
-    con_updt = input("Press Y/y to  confirm updating the selected record: ")
-    if con_updt.lower() == 'y':
-        con.commit()
-        print("The selected id {} has been updated!!".format(sel_id))
+    if get_all_records(sel_id) ==[]:
+        print("The entered ID is not present")
     else:
-        print("The selected record has not been updated.")
-    con.close()
+        rec_to_updt = sel_rec(sel_id)
+        updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('UPDATE pwTAB  SET pwHASH = (?) WHERE userID = (?)',(updated_rec[2],sel_id,))
+        con_updt = input("Press Y/y to  confirm updating the selected record: ")
+        if con_updt.lower() == 'y':
+            con.commit()
+            print("The selected id {} has been updated!!".format(sel_id))
+        else:
+            print("The selected record has not been updated.")
+        con.close()
 
 def sel_rec(sel_id = None):
     if sel_id == None:
         sel_id = input("Enter the id  to select the record: ")
-    con = sq.connect(dbfile)
-    cur = con.cursor()
-    cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
-    record = cur.fetchone()
-    con.close()
-    tmp_str = str(record[3])
-    tmp_str1 = tmp_str.strip("[]")
-    hash_list = tmp_str1.split(', ')
-    rec_list= [record[0],record[1], record[2],hash_list]
+    if get_all_records(sel_id) == []:
+        print("The entered ID is not present!!")
+        rec_list =[]
+    else:
+        con = sq.connect(dbfile)
+        cur = con.cursor()
+        cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
+        record = cur.fetchone()
+        con.close()
+        tmp_str = str(record[3])
+        tmp_str1 = tmp_str.strip("[]")
+        hash_list = tmp_str1.split(', ')
+        rec_list= [record[0],record[1], record[2],hash_list]
+        #print(rec_list)
     return(rec_list)
 
 def get_all_records(sel_id= None):
     con = sq.connect(dbfile)
     cur = con.cursor()
-    cur.execute('SELECT * FROM pwTAB')
-    record = cur.fetchall()
+    if sel_id != None:
+        #sel_id = input("Enter the id  to select the record: ")
+        cur.execute('SELECT * FROM pwTAB WHERE userID = (?)',(sel_id,))
+        record = cur.fetchall()
+    else:
+        cur.execute('SELECT * FROM pwTAB')
+        record = cur.fetchall()
     for item in record:
         print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
 
 def pw_ui():
-    print("The program is used for storing and retrieving your password")
+    print("\n***The program is used for storing and retrieving your password***")
     con = sq.connect(dbfile)  # will create a database file if not present
     cur = con.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
     cur.execute("SELECT * FROM pwTAB")
-    #print(cur.rowcount)
-    if cur.rowcount == -1:
+    data_chk = cur.fetchone()
+    if data_chk == None:
         no_data = True
         print("There is no data stored at present in the database!!")
+        print("A new database file: {} has been created !!".format(dbfile))
+    else:
+        no_data = False
     con.commit()
     con.close()
-    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password","4: Retrieve Password", "5: View Usernames ID"]
+    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
     #print(task_list)
     while True:
         print("\nFollowing tasks can be performed:-")
         for item in task_list:
             print(item)
-        if no_data:
+        if no_data == True:
             # Give option to exit (todo)
-            print("Enter the details for storing password.")
-            sel_y = input("Enter Y/y to continue: ")
-            sel_task = '1'
+            print("Enter the details for storing a new record for securing password.")
+            sel_y = input("Enter Y/y to continue or Enter/Return/any key to abort: ")
+            if sel_y.lower() == 'y':
+                sel_task = '1'
+                print("A new record will be created !!")
+            else:
+                print("Program finished ..")
+                break
         else:
             sel_task = str(input("\nEnter the number for the Selected Task: "))
         
         if sel_task == '1':
             store_record()
             no_data = False
-        if sel_task == '2':
+        elif sel_task == '2':
             update_rec()
-        if sel_task == '3':
+        elif sel_task == '3':
             del_rec()
-        if sel_task == '4':
+        elif sel_task == '4':
             ret_pw()
-        if sel_task == '5':
+        elif sel_task == '5':
             get_all_records()
-        if sel_task == '0':
+        elif sel_task == '0':
             print("The program completed!!")
+            break
+        else:
+            print("No valid input recieved, Exiting the program!!")
             break
 
 
 
 #print("Let's run the UI code..\n")
+#print(len(get_all_records()))
 pw_ui()
 #secure_pw()
 #store_record()
 #ret_pw()
-#get_all_record()
+#sel_rec()
+#get_all_records(1)
 
 
 
