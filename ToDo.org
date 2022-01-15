@@ -23,4 +23,5 @@ Future Functions:
  3. 
 Forks:
  1. Make a program which can be utilised by more than one person for collective authentication. The passphrase/password for every user is hashed and then a merkle root is found and stored in the server.
+ 2. Use the program to store only first few characters of the merkle root of the hashes which the user can write or store  and use the program to check offline if some password is correct or not. 
 
