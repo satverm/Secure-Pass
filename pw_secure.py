@@ -27,7 +27,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
         service = input("Enter the service name: ")
     if passwd == None:
         while True:
-            passwd = input("Enter the password to store for the given username adn service: ")
+            passwd = input("Enter the password to store for the given username and service: ")
             pwd_c = input("Enter the password again to confirm: ")
             if passwd == pwd_c:
                 break
