@@ -58,7 +58,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
     # Code to add random hashes, this can be converted into a function and be called as per requirement, this will enable the flexibility in the code
     ran_int = rd.randint(1,fake_hash_limit)
     for i in range(ran_int):
-        temp_str1 = str(rd.randbytes(10))
+        temp_str1 = str(ps_phr_hsh) + str(rd.randint(10000, 100000))
         ran_hsh = hs.sha256(temp_str1.encode('utf-8')).hexdigest()
         pw_hsh_lst.append(ran_hsh)
     pw_record = [user_name,service, str(pw_hsh_lst)]
