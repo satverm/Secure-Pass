@@ -247,7 +247,7 @@ def db_file_chk(db_file= None):
 
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
-    fil_nam= str(input("Enter the database file name (abc.db):"))
+    fil_nam= str(input("Enter the database file name (ab):"))
     dbfile = db_file_chk(fil_nam)
     print(dbfile)
     if dbfile == False:
