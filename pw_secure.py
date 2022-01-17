@@ -66,18 +66,20 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
     print("The password has been secured and stored in database\n")
     return(pw_record)
 
-def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
+def ret_pw(dbfile= None,sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
     print("The program will  retrieve the password by using the passphrase\n")
+    if dbfile == None:
+        dbfile = db_file_chk()
     if sel_id == None:
         sel_y = str(input("To see the userid and service name press Y/y:"))
         if sel_y.lower() == 'y':
-            get_all_records()
+            get_all_records(None,dbfile)
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
-    if get_all_records(sel_id) == []:
+    if get_all_records(sel_id,dbfile) == []:
         print("The selected ID is not present!!")
     else:
-        rec_list = sel_rec(sel_id)
+        rec_list = sel_rec(sel_id,dbfile)
         pw_hash_list = rec_list[3]
         if pass_phrase == None:
             pass_phrase = input("Enter the pass phrase: ")
@@ -218,7 +220,7 @@ def get_all_records(sel_id= None, dbfile = None):
 
 def db_create(db_file = None):
     if db_file == None:
-        db_file = str(input("Enter the new database file name: "))
+        db_file = str(input("Enter the new database file name to create(abc.db): "))
         #db_file = db_str + '.db'
     con = sq.connect(db_file)
     cur = con.cursor()
@@ -258,14 +260,14 @@ def pw_ui():
     while True:
         sel_task = str(input("\nEnter the number for the Selected Task: "))
         if sel_task == '1':
-            store_record()
+            store_record(None,dbfile)
         elif sel_task == '2':
-            update_rec()
+            update_rec(None,dbfile)
         elif sel_task == '3':
             print("The program will DELETE record from database!!")
-            del_rec()
+            del_rec(None,dbfile)
         elif sel_task == '4':
-            ret_pw() #todo: avoid double printing of selected record
+            ret_pw(dbfile) #todo: avoid double printing of selected record
         elif sel_task == '5':
             print("The records stored in the database are: ")
             get_all_records(None,dbfile)
