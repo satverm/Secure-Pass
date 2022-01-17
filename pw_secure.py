@@ -217,16 +217,16 @@ def pw_ui():
         no_data = True
         print("There is no data stored at present in the database!!")
         print("A new database file: {} has been created !!".format(dbfile))
+        # here we can put code for creating a new user and thus create the first record also for login
     else:
         no_data = False
     con.commit()
     con.close()
     task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
-    #print(task_list)
+    print("\nFollowing tasks can be performed:-")
+    for item in task_list:
+        print(item) #print(task_list)
     while True:
-        print("\nFollowing tasks can be performed:-")
-        for item in task_list:
-            print(item)
         if no_data == True:
             # Give option to exit (todo)
             print("Enter the details for storing a new record for securing password.")
@@ -239,24 +239,31 @@ def pw_ui():
                 break
         else:
             sel_task = str(input("\nEnter the number for the Selected Task: "))
-        
         if sel_task == '1':
             store_record()
             no_data = False
         elif sel_task == '2':
             update_rec()
         elif sel_task == '3':
+            print("The program will DELETE record from database!!")
             del_rec()
         elif sel_task == '4':
             ret_pw() #todo: avoid double printing of selected record
         elif sel_task == '5':
+            print("The records stored in the database are: ")
             get_all_records()
         elif sel_task == '0':
             print("The program completed!!")
             break
         else:
-            print("No valid input recieved, Exiting the program!!")
+            print("No valid input recieved !!")
+        task_opt = input("Press Y or y to get the task list or any other key to Exit : ")
+        if task_opt.lower() == 'y':
+            for item in task_list:
+                print(item)
+        else:
             break
+        
 def main():
     pw_ui()
 
