@@ -224,7 +224,7 @@ def db_create(db_file = None):
         #db_file = db_str + '.db'
     con = sq.connect(db_file)
     cur = con.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(uerID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
     cur.execute("SELECT * FROM pwTAB")
     # ToDo: user login data as the first record can be added herer
     con.commit()
@@ -247,7 +247,7 @@ def db_file_chk(db_file= None):
 
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
-    fil_nam= str(input("Enter the database file name:"))
+    fil_nam= str(input("Enter the database file name (abc.db):"))
     dbfile = db_file_chk(fil_nam)
     print(dbfile)
     if dbfile == False:
