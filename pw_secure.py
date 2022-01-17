@@ -10,7 +10,7 @@ import hashlib as hs
 import sqlite3 as sq
 import random as rd
 
-dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
+#dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can be made large to increase the time for retrieving the passworod and also
 # to randomise the hashes so that they are different even for same password and passphrase pairs. The security is provided by the passphrase without which even with
 # the data of hashes there is no way to find the passwords.
@@ -114,7 +114,9 @@ def ret_pw(sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
         return(pword)
 
 # Function for storing the data in a file
-def store_record(record = None):
+def store_record(record = None,dbfile= None):
+    if dbfile == None:
+        dbfile = db_file_chk()
     if record == None:
         record = secure_pw()
     con = sq.connect(dbfile)
@@ -125,7 +127,9 @@ def store_record(record = None):
     con.close()
     print("Password Wallet updated")
 
-def del_rec(sel_id = None):
+def del_rec(sel_id = None, dbfile = None):
+    if dbfile == None:
+        dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
         get_all_records()
@@ -148,7 +152,9 @@ def del_rec(sel_id = None):
             print("The selected record has not been deleted.")
         con.close()
 
-def update_rec(sel_id = None):
+def update_rec(sel_id = None, dbfile = None):
+    if dbfile == None:
+        dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
         get_all_records()
@@ -172,7 +178,9 @@ def update_rec(sel_id = None):
             print("The selected record has not been updated.")
         con.close()
 
-def sel_rec(sel_id = None):
+def sel_rec(sel_id = None,dbfile= None):
+    if dbfile == None:
+        dbfile = db_file_chk()
     if sel_id == None:
         sel_id = input("Enter the id  to select the record: ")
     if get_all_records(sel_id) == []:
@@ -191,7 +199,9 @@ def sel_rec(sel_id = None):
         #print(rec_list)
     return(rec_list)
 
-def get_all_records(sel_id= None):
+def get_all_records(sel_id= None, dbfile = None):
+    if dbfile == None:
+        dbfile = db_file_chk()
     con = sq.connect(dbfile)
     cur = con.cursor()
     if sel_id != None:
@@ -206,55 +216,49 @@ def get_all_records(sel_id= None):
     con.close()
     return(record)
 
-def db_check():
-    # To check if the database is present and create new if not present
-    con = sq.connect(dbfile)
+def db_create(db_file = None):
+    if db_file == None:
+        db_file = str(input("Enter the new database file name: "))
+        #db_file = db_str + '.db'
+    con = sq.connect(db_file)
     cur = con.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(uerID integer primary key autoincrement not null, UserName text, Servie text, pwHash text)''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(uerID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
     cur.execute("SELECT * FROM pwTAB")
-    data_chk = cur.fetchone()
-    if data_chk == None:
-        print("There is no data stored in the database !!")
-        print("A new database file {} has been created !!".format(dbfile))
-        
-
-    pass
-def pw_ui():
-    print("\n***The program is used for storing and retrieving your password***")
-    con = sq.connect(dbfile)  # will create a database file if not present
-    cur = con.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
-    cur.execute("SELECT * FROM pwTAB")
-    data_chk = cur.fetchone()
-    if data_chk == None:
-        no_data = True
-        print("There is no data stored at present in the database!!")
-        print("A new database file: {} has been created !!".format(dbfile))
-        # here we can put code for creating a new user and thus create the first record also for login
-    else:
-        no_data = False
+    # ToDo: user login data as the first record can be added herer
     con.commit()
     con.close()
+    print("The database file {} has been created!!".format(db_file))
+    return(db_file)
+
+def db_file_chk(db_file= None):
+    if db_file == None:
+        db_file = str(input("Enter the filename to access you data (anyfile.db): "))
+        print(db_file)
+    try:
+        with open(db_file,'r') as fr:
+            print("file is present")
+            return(db_file)
+    except IOError:
+        print("The entered file is not present!!")
+        print("Ensure the file is present in the program directory")
+        return(False)
+
+def pw_ui():
+    print("\n***The program is used for storing and retrieving your password***")
+    fil_nam= str(input("Enter the database file name:"))
+    dbfile = db_file_chk(fil_nam)
+    print(dbfile)
+    if dbfile == False:
+        dbfile= db_create()
+        no_data = True
     task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
     print("\nFollowing tasks can be performed:-")
     for item in task_list:
         print(item) #print(task_list)
     while True:
-        if no_data == True:
-            # Give option to exit (todo)
-            print("Enter the details for storing a new record for securing password.")
-            sel_y = input("Enter Y/y to continue or Enter/Return/any key to abort: ")
-            if sel_y.lower() == 'y':
-                sel_task = '1'
-                print("A new record will be created !!")
-            else:
-                print("Program finished ..")
-                break
-        else:
-            sel_task = str(input("\nEnter the number for the Selected Task: "))
+        sel_task = str(input("\nEnter the number for the Selected Task: "))
         if sel_task == '1':
             store_record()
-            no_data = False
         elif sel_task == '2':
             update_rec()
         elif sel_task == '3':
@@ -264,7 +268,7 @@ def pw_ui():
             ret_pw() #todo: avoid double printing of selected record
         elif sel_task == '5':
             print("The records stored in the database are: ")
-            get_all_records()
+            get_all_records(None,dbfile)
         elif sel_task == '0':
             print("The program completed!!")
             break
