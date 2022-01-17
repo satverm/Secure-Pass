@@ -206,6 +206,19 @@ def get_all_records(sel_id= None):
     con.close()
     return(record)
 
+def db_check():
+    # To check if the database is present and create new if not present
+    con = sq.connect(dbfile)
+    cur = con.cursor()
+    cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(uerID integer primary key autoincrement not null, UserName text, Servie text, pwHash text)''')
+    cur.execute("SELECT * FROM pwTAB")
+    data_chk = cur.fetchone()
+    if data_chk == None:
+        print("There is no data stored in the database !!")
+        print("A new database file {} has been created !!".format(dbfile))
+        
+
+    pass
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
     con = sq.connect(dbfile)  # will create a database file if not present
