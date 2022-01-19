@@ -225,10 +225,30 @@ def db_create(db_file = None):
     con = sq.connect(db_file)
     cur = con.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
-    cur.execute("SELECT * FROM pwTAB")
-    # ToDo: user login data as the first record can be added herer
+    #cur.execute("SELECT * FROM pwTAB")
+    # ToDo: user login data as the first record can be added here:
+    print("The first record in the database will be used for user login.")
+    user = input("Enter the admin name for managing the passwords: ")
+    while True:
+        ad_pw = input("Enter the admin password: ")
+        ad_pwc = input("Enter the password again to confirm: ")
+        if ad_pw != ad_pwc:
+            print("The passwords entered by you don't match!! enter again..")
+        else:
+            break
+    while True:
+        ad_ps_phr = input("Enter the admin passphrase: ")
+        ad_phrc = input("Enter the passphrase again to confirm: ")
+        print("### NOTE THE PASSPHRASE IN SOME PAPER AS IT WILL BE USED TO RETRIEVE ANY PASSWORD ###")
+        if ad_ps_phr != ad_phrc:
+            print("The passphrase entered by you don't match!! enter again..")
+        else:
+            break
+    store_record(secure_pw(user,'administration',ad_pw,ad_ps_phr),db_file)
+    print("Following admin user has been created\nThe same would be used for managing the data.")
     con.commit()
     con.close()
+    print(get_all_records(1,db_file))
     print("The database file {} has been created!!".format(db_file))
     return(db_file)
 
@@ -243,6 +263,7 @@ def db_file_chk(db_file= None):
     except IOError:
         print("The entered file is not present!!")
         print("Ensure the file is present in the program directory")
+        # todo: code to tell user exit and to copy datafile in the program folder or enter the correct file name
         return(False)
 
 def pw_ui():
@@ -269,7 +290,7 @@ def pw_ui():
         elif sel_task == '4':
             ret_pw(dbfile) #todo: avoid double printing of selected record
         elif sel_task == '5':
-            print("The records stored in the database are: ")
+            print("Records stored in the database : ")
             r= get_all_records(None,dbfile)
             if r == []:
                 print("There are no records in the database at present!!")
