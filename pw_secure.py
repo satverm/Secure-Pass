@@ -134,11 +134,11 @@ def del_rec(sel_id = None, dbfile = None):
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        get_all_records()
+        get_all_records(None,dbfile)
         sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
-        get_all_records(sel_id)
-    sel_rec = get_all_records(sel_id)
+        get_all_records(sel_id,dbfile)
+    sel_rec = get_all_records(sel_id,dbfile)
     #print(sel_rec)
     if sel_rec == []:
         print("The selected ID is not present !!")
@@ -159,12 +159,12 @@ def update_rec(sel_id = None, dbfile = None):
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        get_all_records()
+        get_all_records(None,dbfile)
         sel_id = input("Enter the id for which password is to be updated: ")
     else:
         print("The selected record is as under: ")
-        get_all_records(sel_id)
-    if get_all_records(sel_id) ==[]:
+        get_all_records(sel_id,dbfile)
+    if get_all_records(sel_id,dbfile) ==[]:
         print("The entered ID is not present!!")
     else:
         rec_to_updt = sel_rec(sel_id)
@@ -185,7 +185,7 @@ def sel_rec(sel_id = None,dbfile= None):
         dbfile = db_file_chk()
     if sel_id == None:
         sel_id = input("Enter the id  to select the record: ")
-    if get_all_records(sel_id) == []:
+    if get_all_records(sel_id,dbfile) == []:
         print("The entered ID is not present!!")
         rec_list =[]
     else:
@@ -247,9 +247,9 @@ def db_file_chk(db_file= None):
 
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
-    fil_nam= str(input("Enter the database file name (ab):"))
+    fil_nam= str(input("Enter the database file name (abc.db):"))
     dbfile = db_file_chk(fil_nam)
-    print(dbfile)
+    #print(dbfile)
     if dbfile == False:
         dbfile= db_create()
         no_data = True
@@ -270,7 +270,9 @@ def pw_ui():
             ret_pw(dbfile) #todo: avoid double printing of selected record
         elif sel_task == '5':
             print("The records stored in the database are: ")
-            get_all_records(None,dbfile)
+            r= get_all_records(None,dbfile)
+            if r == []:
+                print("There are no records in the database at present!!")
         elif sel_task == '0':
             print("The program completed!!")
             break
