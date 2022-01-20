@@ -255,7 +255,7 @@ def db_create(db_file = None):
 def db_file_chk(db_file= None):
     if db_file == None:
         db_file = str(input("Enter the filename to access you data (anyfile.db): "))
-        print(db_file)
+        print("The file selected by you is:",db_file)
     try:
         with open(db_file,'r') as fr:
             print("file is present")
@@ -268,17 +268,26 @@ def db_file_chk(db_file= None):
 
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
-    fil_nam= str(input("Enter the database file name (abc.db):"))
-    dbfile = db_file_chk(fil_nam)
-    #print(dbfile)
+    file_nam= str(input("Enter the database file name (abc.db):"))
+    dbfile = db_file_chk(file_nam)
+    nofile = False
     if dbfile == False:
-        dbfile= db_create()
-        no_data = True
-    task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
-    print("\nFollowing tasks can be performed:-")
-    for item in task_list:
-        print(item) #print(task_list)
-    while True:
+        nofile = True
+        new_file_opt = str(input("Press Y/y to create a new file or any other key to exit!!: "))
+        if new_file_opt.lower() == 'y':
+            dbfile= db_create()
+            if db_file_chk(dbfile) == False:
+                nofile = True
+            else:
+                nofile = False
+        else:
+            nofile = True
+    if not nofile:
+        task_list = ["0: Exit","1: Store Password","2: Update password","3: Delete Password Record","4: Retrieve Password", "5: View Usernames ID"]
+        print("\nFollowing tasks can be performed:-")
+        for item in task_list:
+            print(item) #print(task_list)
+    while not nofile:
         sel_task = str(input("\nEnter the number for the Selected Task: "))
         if sel_task == '1':
             store_record(None,dbfile)
@@ -305,6 +314,7 @@ def pw_ui():
                 print(item)
         else:
             break
+    print("The program finished!!")
         
 def main():
     pw_ui()
