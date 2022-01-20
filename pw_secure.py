@@ -71,9 +71,11 @@ def ret_pw(dbfile= None,sel_id = None, pass_phrase= None, ran_min= None, ran_max
     if dbfile == None:
         dbfile = db_file_chk()
     if sel_id == None:
-        sel_y = str(input("To see the userid and service name press Y/y:"))
+        sel_y = str(input("To see the database ID, UserName and Service name press Y/y:"))
         if sel_y.lower() == 'y':
-            get_all_records(None,dbfile)
+            rec_lst = get_all_records(None,dbfile)
+            for item in rec_lst:
+                print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = input("Enter the id  to retrieve the password: ")
     # Now get the record from the database for the selected id and retrieve password using the passphrase
     if get_all_records(sel_id,dbfile) == []:
@@ -127,22 +129,25 @@ def store_record(record = None,dbfile= None):
     cur.execute('INSERT INTO pwTAB(UserName,Service,pwHash) VALUES(?,?,?)',record)
     con.commit()
     con.close()
-    print("Password Wallet updated")
+    print("Password database updated in {}".format(dbfile))
 
 def del_rec(sel_id = None, dbfile = None):
     if dbfile == None:
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        get_all_records(None,dbfile)
+        rec_lst = get_all_records(None,dbfile)
+        for item in rec_lst:
+            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
-        get_all_records(sel_id,dbfile)
-    sel_rec = get_all_records(sel_id,dbfile)
-    #print(sel_rec)
+        rec_lst = get_all_records(sel_id,dbfile)
     if sel_rec == []:
         print("The selected ID is not present !!")
     else:
+        print("The selected record to delete is: ")
+        for item in rec_lst:
+            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         con = sq.connect(dbfile)
         cur = con.cursor()
         cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
@@ -159,15 +164,19 @@ def update_rec(sel_id = None, dbfile = None):
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        get_all_records(None,dbfile)
+        rec_lst = get_all_records(None,dbfile)
+        for item in rec_lst:
+            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = input("Enter the id for which password is to be updated: ")
     else:
         print("The selected record is as under: ")
-        get_all_records(sel_id,dbfile)
+        rec_lst = get_all_records(sel_id,dbfile)
+        for item in rec_lst:
+            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     if get_all_records(sel_id,dbfile) ==[]:
         print("The entered ID is not present!!")
     else:
-        rec_to_updt = sel_rec(sel_id)
+        rec_to_updt = sel_rec(sel_id,dbfile)
         updated_rec = secure_pw(rec_to_updt[1],rec_to_updt[2])
         con = sq.connect(dbfile)
         cur = con.cursor()
@@ -175,9 +184,9 @@ def update_rec(sel_id = None, dbfile = None):
         con_updt = input("Press Y/y to  confirm updating the selected record: ")
         if con_updt.lower() == 'y':
             con.commit()
-            print("The selected id {} has been updated!!".format(sel_id))
+            print("The selected id {} has been updated!! in {} .".format(sel_id,dbfile))
         else:
-            print("The selected record has not been updated.")
+            print("The selected record has not been updated in database file: {}".format(dbfile))
         con.close()
 
 def sel_rec(sel_id = None,dbfile= None):
@@ -213,8 +222,8 @@ def get_all_records(sel_id= None, dbfile = None):
     else:
         cur.execute('SELECT * FROM pwTAB')
         record = cur.fetchall()
-    for item in record:
-        print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+    #for item in record:
+        #print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
 
@@ -300,9 +309,12 @@ def pw_ui():
             ret_pw(dbfile) #todo: avoid double printing of selected record
         elif sel_task == '5':
             print("Records stored in the database : ")
-            r= get_all_records(None,dbfile)
-            if r == []:
+            rec_list= get_all_records(None,dbfile)
+            if rec_list == []:
                 print("There are no records in the database at present!!")
+            else:
+                for item in rec_list:
+                    print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         elif sel_task == '0':
             print("The program completed!!")
             break
@@ -321,6 +333,7 @@ def main():
 
 if __name__ == "__main__":
         main()
+
 
 
 #print("Let's run the UI code..\n")
