@@ -20,7 +20,9 @@ lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can 
 fake_hash_limit = 10    # Adds random (1-10)number of fake hashes in the database.
 #print("The program is used to store and retrieve passwords securely\n")
 
-# First, let's define functions for storing the password
+# First, let's define functions for various tasks
+
+# secure_pw: will conver the password into random hashes list based on the passphrase provided by the user.
 def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, ran_min= None, ran_max= None):
     if user_name == None:
         user_name= input("Enter the username: ")
@@ -66,7 +68,7 @@ def secure_pw(user_name= None, service= None, passwd= None, pass_phrase= None, r
     #store_record(pw_record)
     print("The password has been secured and stored in database\n")
     return(pw_record)
-
+# ret_pw: will retrieve the password using the same passphrase as used to secure and store.
 def ret_pw(dbfile= None,sel_id = None, pass_phrase= None, ran_min= None, ran_max= None):
     print("The program will  retrieve the password by using the passphrase\n")
     if dbfile == None:
@@ -117,7 +119,7 @@ def ret_pw(dbfile= None,sel_id = None, pass_phrase= None, ran_min= None, ran_max
                     break
         return(pword)
 
-# Function for storing the data in a file
+# Function for storing the secured password in a sqlite3 database file(filename.db) to be provided by the user.
 def store_record(record = None,dbfile= None):
     if dbfile == None:
         dbfile = db_file_chk()
@@ -131,15 +133,13 @@ def store_record(record = None,dbfile= None):
     con.close()
     print("Password database updated in {}".format(dbfile))
 
+# del_rec: function to delete a record from the database file based on the ID of the record.
 def del_rec(sel_id = None, dbfile = None):
     if dbfile == None:
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
         print_records(sel_id, dbfile)
-        # rec_lst = get_all_records(None,dbfile)
-        # for item in rec_lst:
-        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
         rec_lst = get_all_records(sel_id,dbfile)
@@ -147,9 +147,6 @@ def del_rec(sel_id = None, dbfile = None):
         print("The selected ID is not present !!")
     else:
         print_records(sel_id,dbfile)
-        # print("The selected record to delete is: ")
-        # for item in rec_lst:
-        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         con = sq.connect(dbfile)
         cur = con.cursor()
         cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
@@ -161,22 +158,17 @@ def del_rec(sel_id = None, dbfile = None):
             print("The selected record has not been deleted.")
         con.close()
 
+# update_rec: used to store a new password for some already stored record.
 def update_rec(sel_id = None, dbfile = None):
     if dbfile == None:
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
         print_records(sel_id,dbfile)
-        # rec_lst = get_all_records(None,dbfile)
-        # for item in rec_lst:
-        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = input("Enter the id for which password is to be updated: ")
     else:
         print("The selected record is as under: ")
         print_records(sel_id,dbfile)
-        # rec_lst = get_all_records(sel_id,dbfile)
-        # for item in rec_lst:
-        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     if get_all_records(sel_id,dbfile) ==[]:
         print("The entered ID is not present!!")
     else:
@@ -192,7 +184,7 @@ def update_rec(sel_id = None, dbfile = None):
         else:
             print("The selected record has not been updated in database file: {}".format(dbfile))
         con.close()
-
+#sel_rec: used to select the record and the hashlist in the required format.
 def sel_rec(sel_id = None,dbfile= None):
     if dbfile == None:
         dbfile = db_file_chk()
@@ -214,6 +206,7 @@ def sel_rec(sel_id = None,dbfile= None):
         #print(rec_list)
     return(rec_list)
 
+# get_all_records: used to get a list of all or one record from the database except the hashlist.
 def get_all_records(sel_id= None, dbfile = None):
     if dbfile == None:
         dbfile = db_file_chk()
@@ -226,25 +219,22 @@ def get_all_records(sel_id= None, dbfile = None):
     else:
         cur.execute('SELECT * FROM pwTAB')
         record = cur.fetchall()
-    #for item in record:
-        #print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
 
+# print_records: print all or one record from database.
 def print_records(sel_id = None, db_file = None):
     rec_lst = get_all_records(sel_id,db_file)
     for item in rec_lst:
         print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
 
+#db_create: used to create a new database file when running for first time anytime if the user wants.
 def db_create(db_file = None):
     if db_file == None:
         db_file = str(input("Enter the new database file name to create(abc.db): "))
-        #db_file = db_str + '.db'
     con = sq.connect(db_file)
     cur = con.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS pwTAB(userID integer primary key autoincrement not null, UserName text, Service text, pwHash text)''')
-    #cur.execute("SELECT * FROM pwTAB")
-    # ToDo: user login data as the first record can be added here:
     print("The first record in the database will be used for user login.")
     user = input("Enter the admin name for managing the passwords: ")
     while True:
@@ -266,13 +256,14 @@ def db_create(db_file = None):
     print("Following admin user has been created\nThe same would be used for managing the data.")
     con.commit()
     con.close()
-    print(get_all_records(1,db_file))
+    print_records(None,db_file)
     print("The database file {} has been created!!".format(db_file))
     return(db_file)
 
+# db_file_chk: check if the entered file is present and return the filename if present or False if not present in the program dir.
 def db_file_chk(db_file= None):
     if db_file == None:
-        db_file = str(input("Enter the filename to access you data (anyfile.db): "))
+        db_file = str(input("Enter the filename to access you data (filename.db): "))
         print("The file selected by you is:",db_file)
     try:
         with open(db_file,'r') as fr:
@@ -284,9 +275,10 @@ def db_file_chk(db_file= None):
         # todo: code to tell user exit and to copy datafile in the program folder or enter the correct file name
         return(False)
 
+# pw_ui: The user interface for all tasks of the program.
 def pw_ui():
     print("\n***The program is used for storing and retrieving your password***")
-    file_nam= str(input("Enter the database file name (abc.db):"))
+    file_nam= str(input("Enter the database file name (filename.db):"))
     dbfile = db_file_chk(file_nam)
     nofile = False
     if dbfile == False:
@@ -337,23 +329,15 @@ def pw_ui():
         else:
             break
     print("The program finished!!")
-        
+
+# main: The entry point for the program.        
 def main():
     pw_ui()
 
+# code string to start main()
 if __name__ == "__main__":
         main()
 
-
-
-#print("Let's run the UI code..\n")
-#print(len(get_all_records()))
-#pw_ui()
-#secure_pw()
-#store_record()
-#ret_pw()
-#sel_rec()
-#get_all_records(1)
 
 
 
