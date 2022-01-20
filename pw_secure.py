@@ -9,6 +9,7 @@
 import hashlib as hs
 import sqlite3 as sq
 import random as rd
+from traceback import print_tb
 
 #dbfile= 'pw_wallet_1_01.db'  # The file name can be changed by the user here only to have different names.
 lim_min, lim_max = 1000,2000   # The difference between ran_min and ran_max can be made large to increase the time for retrieving the passworod and also
@@ -112,8 +113,7 @@ def ret_pw(dbfile= None,sel_id = None, pass_phrase= None, ran_min= None, ran_max
                 break
             else:
                 if tmp_chk == False:
-                    print("\nThe password is: {}".format(pword))
-
+                    print("\nThe stored password is: '{}' ".format(pword))
                     break
         return(pword)
 
@@ -136,18 +136,20 @@ def del_rec(sel_id = None, dbfile = None):
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        rec_lst = get_all_records(None,dbfile)
-        for item in rec_lst:
-            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+        print_records(sel_id, dbfile)
+        # rec_lst = get_all_records(None,dbfile)
+        # for item in rec_lst:
+        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = (input("Enter the id for which record is to be deleted: "))
     else:
         rec_lst = get_all_records(sel_id,dbfile)
     if sel_rec == []:
         print("The selected ID is not present !!")
     else:
-        print("The selected record to delete is: ")
-        for item in rec_lst:
-            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+        print_records(sel_id,dbfile)
+        # print("The selected record to delete is: ")
+        # for item in rec_lst:
+        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         con = sq.connect(dbfile)
         cur = con.cursor()
         cur.execute('DELETE FROM pwTAB WHERE userID = (?)',(sel_id,))
@@ -164,15 +166,17 @@ def update_rec(sel_id = None, dbfile = None):
         dbfile = db_file_chk()
     if sel_id == None:
         print("The records stored in the database are: ")
-        rec_lst = get_all_records(None,dbfile)
-        for item in rec_lst:
-            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+        print_records(sel_id,dbfile)
+        # rec_lst = get_all_records(None,dbfile)
+        # for item in rec_lst:
+        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         sel_id = input("Enter the id for which password is to be updated: ")
     else:
         print("The selected record is as under: ")
-        rec_lst = get_all_records(sel_id,dbfile)
-        for item in rec_lst:
-            print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+        print_records(sel_id,dbfile)
+        # rec_lst = get_all_records(sel_id,dbfile)
+        # for item in rec_lst:
+        #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     if get_all_records(sel_id,dbfile) ==[]:
         print("The entered ID is not present!!")
     else:
@@ -226,6 +230,11 @@ def get_all_records(sel_id= None, dbfile = None):
         #print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
     con.close()
     return(record)
+
+def print_records(sel_id = None, db_file = None):
+    rec_lst = get_all_records(sel_id,db_file)
+    for item in rec_lst:
+        print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
 
 def db_create(db_file = None):
     if db_file == None:
@@ -313,8 +322,9 @@ def pw_ui():
             if rec_list == []:
                 print("There are no records in the database at present!!")
             else:
-                for item in rec_list:
-                    print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
+                print_records(None,dbfile)
+                # for item in rec_list:
+                #     print("ID={}    | UserName={}      | Service= {}".format(item[0],item[1],item[2]))
         elif sel_task == '0':
             print("The program completed!!")
             break
